@@ -13,7 +13,7 @@
     <div>
         <x-input-label for="type" value="Tipe Konten" />
         <select id="type" name="type" x-model="type" required
-            class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+            class="mt-1 block w-full border-border focus:border-primary focus:ring-0 rounded-md">
             <option value="image" {{ old('type', $content->type ?? '') === 'image' ? 'selected' : '' }}>Gambar</option>
             <option value="video" {{ old('type', $content->type ?? '') === 'video' ? 'selected' : '' }}>Video</option>
             <option value="text" {{ old('type', $content->type ?? '') === 'text' ? 'selected' : '' }}>Teks</option>
@@ -25,17 +25,17 @@
     <div x-show="type === 'image' || type === 'video'" x-cloak>
         <x-input-label for="file" value="Berkas (Gambar: jpg/png, maks 5MB &middot; Video: mp4, maks 50MB)" />
         <input id="file" name="file" type="file" accept="image/jpeg,image/png,video/mp4"
-            class="mt-1 block w-full text-sm text-gray-700 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" />
+            class="mt-1 block w-full text-sm text-ink border-border focus:border-primary focus:ring-0 rounded-md" />
         <x-input-error :messages="$errors->get('file')" class="mt-2" />
 
         @if (($content->file_path ?? null))
             <div class="mt-3">
                 @if ($content->type === 'image')
-                    <img src="{{ $content->file_url }}" alt="{{ $content->title }}" class="h-32 rounded-md border border-gray-200 object-cover">
+                    <img src="{{ $content->file_url }}" alt="{{ $content->title }}" class="h-32 rounded-md border border-border object-cover">
                 @else
-                    <video src="{{ $content->file_url }}" class="h-32 rounded-md border border-gray-200" controls muted></video>
+                    <video src="{{ $content->file_url }}" class="h-32 rounded-md border border-border" controls muted></video>
                 @endif
-                <p class="text-xs text-gray-400 mt-1">Kosongkan berkas jika tidak ingin mengganti file yang sudah ada.</p>
+                <p class="text-xs text-muted mt-1">Kosongkan berkas jika tidak ingin mengganti file yang sudah ada.</p>
             </div>
         @endif
     </div>
@@ -43,7 +43,7 @@
     <div x-show="type === 'text' || type === 'html-embed'" x-cloak>
         <x-input-label for="text_body" value="Isi Teks / Kode HTML" />
         <textarea id="text_body" name="text_body" rows="5"
-            class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">{{ old('text_body', $content->text_body ?? '') }}</textarea>
+            class="mt-1 block w-full border-border focus:border-primary focus:ring-0 rounded-md">{{ old('text_body', $content->text_body ?? '') }}</textarea>
         <x-input-error :messages="$errors->get('text_body')" class="mt-2" />
     </div>
 
@@ -52,7 +52,7 @@
             <x-input-label for="duration" value="Durasi Tampil (detik)" />
             <x-text-input id="duration" name="duration" type="number" min="1" max="3600" class="mt-1 block w-full"
                 value="{{ old('duration', $content->duration ?? 10) }}" required />
-            <p class="text-xs text-gray-400 mt-1">Untuk video, durasi mengikuti panjang video.</p>
+            <p class="text-xs text-muted mt-1">Untuk video, durasi mengikuti panjang video.</p>
             <x-input-error :messages="$errors->get('duration')" class="mt-2" />
         </div>
 
@@ -74,7 +74,7 @@
             <x-input-label for="end_date" value="Tanggal Selesai Tayang" />
             <x-text-input id="end_date" name="end_date" type="date" class="mt-1 block w-full"
                 value="{{ old('end_date', optional($content->end_date ?? null)->format('Y-m-d')) }}" />
-            <p class="text-xs text-gray-400 mt-1">Kosongkan agar tayang tanpa batas waktu.</p>
+            <p class="text-xs text-muted mt-1">Kosongkan agar tayang tanpa batas waktu.</p>
             <x-input-error :messages="$errors->get('end_date')" class="mt-2" />
         </div>
     </div>
@@ -83,15 +83,15 @@
         <label class="flex items-center gap-2">
             <input type="checkbox" name="is_active" value="1"
                 {{ old('is_active', $content->is_active ?? true) ? 'checked' : '' }}
-                class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500">
-            <span class="text-sm text-gray-700">Aktif (tayang di layar)</span>
+                class="rounded border-border text-primary shadow-none focus:ring-primary">
+            <span class="text-sm text-ink">Aktif (tayang di layar)</span>
         </label>
 
         <label class="flex items-center gap-2">
             <input type="checkbox" name="is_priority" value="1"
                 {{ old('is_priority', $content->is_priority ?? false) ? 'checked' : '' }}
-                class="rounded border-gray-300 text-red-600 shadow-sm focus:ring-red-500">
-            <span class="text-sm text-gray-700">Prioritas / Darurat (menyela slideshow normal)</span>
+                class="rounded border-border text-danger shadow-none focus:ring-danger">
+            <span class="text-sm text-ink">Prioritas / Darurat (menyela slideshow normal)</span>
         </label>
     </div>
 </div>

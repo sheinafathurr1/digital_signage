@@ -1,18 +1,18 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">Kelola Playlist: {{ $playlist->name }}</h2>
+        <h2 class="font-semibold text-xl text-ink leading-tight">Kelola Playlist: {{ $playlist->name }}</h2>
     </x-slot>
 
     <div class="py-12">
         <div class="max-w-5xl mx-auto sm:px-6 lg:px-8 space-y-6">
             @if (session('status'))
-                <div class="bg-green-50 border border-green-200 text-green-800 text-sm rounded-md p-4">
+                <div class="bg-success/10 border border-success/20 text-success text-sm rounded-md p-4">
                     {{ session('status') }}
                 </div>
             @endif
 
-            <div class="bg-white overflow-hidden shadow-sm rounded-lg p-6">
-                <h3 class="font-semibold text-gray-800 mb-4">Nama Playlist</h3>
+            <div class="bg-surface overflow-hidden shadow-card border border-border rounded-lg p-6">
+                <h3 class="font-semibold text-ink mb-4">Nama Playlist</h3>
                 <form method="POST" action="{{ route('admin.playlists.update', $playlist) }}" class="flex items-end gap-3">
                     @csrf
                     @method('PUT')
@@ -25,13 +25,13 @@
                 </form>
             </div>
 
-            <div class="bg-white overflow-hidden shadow-sm rounded-lg p-6"
+            <div class="bg-surface overflow-hidden shadow-card border border-border rounded-lg p-6"
                 x-data="playlistEditor({
                     assigned: {{ Illuminate\Support\Js::from($playlist->contents->map(fn ($c) => ['id' => $c->id, 'title' => $c->title, 'type_label' => $c->type_label])) }},
                     available: {{ Illuminate\Support\Js::from($availableContents->map(fn ($c) => ['id' => $c->id, 'title' => $c->title, 'type_label' => $c->type_label])) }},
                 })">
-                <h3 class="font-semibold text-gray-800 mb-1">Susun Konten Playlist</h3>
-                <p class="text-sm text-gray-500 mb-4">Tambahkan konten dari daftar tersedia, lalu atur urutan tayang dengan tombol naik/turun.</p>
+                <h3 class="font-semibold text-ink mb-1">Susun Konten Playlist</h3>
+                <p class="text-sm text-muted mb-4">Tambahkan konten dari daftar tersedia, lalu atur urutan tayang dengan tombol naik/turun.</p>
 
                 <form method="POST" action="{{ route('admin.playlists.contents.update', $playlist) }}">
                     @csrf
@@ -39,43 +39,43 @@
 
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         <div>
-                            <h4 class="text-sm font-semibold text-gray-600 mb-2">Konten Terpilih (urutan tayang)</h4>
-                            <ul class="border border-gray-200 rounded-md divide-y divide-gray-100 min-h-[3rem]">
+                            <h4 class="text-sm font-semibold text-muted mb-2">Konten Terpilih (urutan tayang)</h4>
+                            <ul class="border border-border rounded-md divide-y divide-border min-h-[3rem]">
                                 <template x-for="(item, index) in assigned" :key="item.id">
                                     <li class="flex items-center justify-between px-3 py-2 text-sm">
                                         <span>
-                                            <span class="text-gray-400 mr-2" x-text="index + 1 + '.'"></span>
+                                            <span class="text-muted mr-2" x-text="index + 1 + '.'"></span>
                                             <span x-text="item.title"></span>
-                                            <span class="text-gray-400" x-text="'(' + item.type_label + ')'"></span>
+                                            <span class="text-muted" x-text="'(' + item.type_label + ')'"></span>
                                         </span>
                                         <span class="flex items-center gap-2">
-                                            <button type="button" class="text-gray-400 hover:text-gray-700 disabled:opacity-25"
+                                            <button type="button" class="text-muted hover:text-ink disabled:opacity-25"
                                                 @click="moveUp(index)" :disabled="index === 0">&uarr;</button>
-                                            <button type="button" class="text-gray-400 hover:text-gray-700 disabled:opacity-25"
+                                            <button type="button" class="text-muted hover:text-ink disabled:opacity-25"
                                                 @click="moveDown(index)" :disabled="index === assigned.length - 1">&darr;</button>
-                                            <button type="button" class="text-red-500 hover:underline" @click="unassign(index)">Hapus</button>
+                                            <button type="button" class="text-danger hover:underline" @click="unassign(index)">Hapus</button>
                                         </span>
                                     </li>
                                 </template>
-                                <li x-show="assigned.length === 0" x-cloak class="px-3 py-4 text-center text-gray-400 text-sm">
+                                <li x-show="assigned.length === 0" x-cloak class="px-3 py-4 text-center text-muted text-sm">
                                     Belum ada konten dipilih.
                                 </li>
                             </ul>
                         </div>
 
                         <div>
-                            <h4 class="text-sm font-semibold text-gray-600 mb-2">Konten Tersedia</h4>
-                            <ul class="border border-gray-200 rounded-md divide-y divide-gray-100 min-h-[3rem]">
+                            <h4 class="text-sm font-semibold text-muted mb-2">Konten Tersedia</h4>
+                            <ul class="border border-border rounded-md divide-y divide-border min-h-[3rem]">
                                 <template x-for="(item, index) in available" :key="item.id">
                                     <li class="flex items-center justify-between px-3 py-2 text-sm">
                                         <span>
                                             <span x-text="item.title"></span>
-                                            <span class="text-gray-400" x-text="'(' + item.type_label + ')'"></span>
+                                            <span class="text-muted" x-text="'(' + item.type_label + ')'"></span>
                                         </span>
-                                        <button type="button" class="text-indigo-600 hover:underline" @click="assign(index)">+ Tambah</button>
+                                        <button type="button" class="text-primary hover:underline" @click="assign(index)">+ Tambah</button>
                                     </li>
                                 </template>
-                                <li x-show="available.length === 0" x-cloak class="px-3 py-4 text-center text-gray-400 text-sm">
+                                <li x-show="available.length === 0" x-cloak class="px-3 py-4 text-center text-muted text-sm">
                                     Semua konten sudah dimasukkan ke playlist ini.
                                 </li>
                             </ul>
@@ -92,7 +92,7 @@
                 </form>
             </div>
 
-            <a href="{{ route('admin.playlists.index') }}" class="text-sm text-gray-600 hover:underline">&larr; Kembali ke daftar playlist</a>
+            <a href="{{ route('admin.playlists.index') }}" class="text-sm text-muted hover:underline">&larr; Kembali ke daftar playlist</a>
         </div>
     </div>
 
