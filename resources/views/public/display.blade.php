@@ -52,7 +52,7 @@
     >
         <!-- Jam & tanggal -->
         <div class="absolute top-4 right-6 z-30 bg-surface/95 border border-border rounded-xl shadow-card px-5 py-3 text-right">
-            <div class="flex items-baseline justify-end gap-1">
+            <div class="flex items-baseline justify-end gap-1 font-mono">
                 <span class="text-5xl font-bold tabular-nums tracking-tight text-ink" x-text="clockMain"></span>
                 <span class="text-xl font-semibold tabular-nums text-primary" x-text="clockSeconds"></span>
             </div>

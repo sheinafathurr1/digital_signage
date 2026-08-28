@@ -19,7 +19,7 @@
 <div>
     <x-input-label for="orientation" value="Orientasi" />
     <select id="orientation" name="orientation" required
-        class="mt-1 block w-full border-border focus:border-primary focus:ring-0 rounded-md">
+        class="mt-1 block w-full border-border focus:border-2 focus:border-primary focus:ring-0 focus:shadow-focus rounded-md">
         <option value="landscape" {{ old('orientation', $display->orientation ?? 'landscape') === 'landscape' ? 'selected' : '' }}>Landscape (1920x1080)</option>
         <option value="portrait" {{ old('orientation', $display->orientation ?? '') === 'portrait' ? 'selected' : '' }}>Portrait</option>
     </select>
@@ -29,7 +29,7 @@
 <div>
     <x-input-label for="playlist_id" value="Playlist" />
     <select id="playlist_id" name="playlist_id"
-        class="mt-1 block w-full border-border focus:border-primary focus:ring-0 rounded-md">
+        class="mt-1 block w-full border-border focus:border-2 focus:border-primary focus:ring-0 focus:shadow-focus rounded-md">
         <option value="">-- Tidak ada playlist --</option>
         @foreach ($playlists as $playlist)
             <option value="{{ $playlist->id }}" {{ (string) old('playlist_id', $display->playlist_id ?? '') === (string) $playlist->id ? 'selected' : '' }}>

@@ -30,7 +30,7 @@
                         </thead>
                         <tbody class="divide-y divide-border">
                             @foreach ($displays as $display)
-                                <tr class="hover:bg-background/60 transition-colors duration-fast">
+                                <tr class="even:bg-background hover:bg-border/40 transition-colors duration-fast">
                                     <td class="px-4 py-3 text-ink">{{ $display->name }}</td>
                                     <td class="px-4 py-3 text-muted">{{ $display->location ?? '-' }}</td>
                                     <td class="px-4 py-3 text-muted">

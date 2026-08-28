@@ -35,7 +35,7 @@
                         </thead>
                         <tbody class="divide-y divide-border">
                             @foreach ($contents as $content)
-                                <tr class="hover:bg-background/60 transition-colors duration-fast">
+                                <tr class="even:bg-background hover:bg-border/40 transition-colors duration-fast">
                                     <td class="px-4 py-3 text-ink">
                                         {{ $content->title }}
                                         @if ($content->is_priority)

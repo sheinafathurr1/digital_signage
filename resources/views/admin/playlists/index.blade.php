@@ -28,7 +28,7 @@
                         </thead>
                         <tbody class="divide-y divide-border">
                             @foreach ($playlists as $playlist)
-                                <tr class="hover:bg-background/60 transition-colors duration-fast">
+                                <tr class="even:bg-background hover:bg-border/40 transition-colors duration-fast">
                                     <td class="px-4 py-3 text-ink">{{ $playlist->name }}</td>
                                     <td class="px-4 py-3 text-muted">{{ $playlist->contents_count }} konten</td>
                                     <td class="px-4 py-3 text-muted">{{ $playlist->displays_count }} layar</td>

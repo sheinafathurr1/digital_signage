@@ -13,7 +13,7 @@
     <div>
         <x-input-label for="type" value="Tipe Konten" />
         <select id="type" name="type" x-model="type" required
-            class="mt-1 block w-full border-border focus:border-primary focus:ring-0 rounded-md">
+            class="mt-1 block w-full border-border focus:border-2 focus:border-primary focus:ring-0 focus:shadow-focus rounded-md">
             <option value="image" {{ old('type', $content->type ?? '') === 'image' ? 'selected' : '' }}>Gambar</option>
             <option value="video" {{ old('type', $content->type ?? '') === 'video' ? 'selected' : '' }}>Video</option>
             <option value="text" {{ old('type', $content->type ?? '') === 'text' ? 'selected' : '' }}>Teks</option>
@@ -25,7 +25,7 @@
     <div x-show="type === 'image' || type === 'video'" x-cloak>
         <x-input-label for="file" value="Berkas (Gambar: jpg/png, maks 5MB &middot; Video: mp4, maks 50MB)" />
         <input id="file" name="file" type="file" accept="image/jpeg,image/png,video/mp4"
-            class="mt-1 block w-full text-sm text-ink border-border focus:border-primary focus:ring-0 rounded-md" />
+            class="mt-1 block w-full text-sm text-ink border-border focus:border-2 focus:border-primary focus:ring-0 focus:shadow-focus rounded-md" />
         <x-input-error :messages="$errors->get('file')" class="mt-2" />
 
         @if (($content->file_path ?? null))
@@ -43,7 +43,7 @@
     <div x-show="type === 'text' || type === 'html-embed'" x-cloak>
         <x-input-label for="text_body" value="Isi Teks / Kode HTML" />
         <textarea id="text_body" name="text_body" rows="5"
-            class="mt-1 block w-full border-border focus:border-primary focus:ring-0 rounded-md">{{ old('text_body', $content->text_body ?? '') }}</textarea>
+            class="mt-1 block w-full border-border focus:border-2 focus:border-primary focus:ring-0 focus:shadow-focus rounded-md">{{ old('text_body', $content->text_body ?? '') }}</textarea>
         <x-input-error :messages="$errors->get('text_body')" class="mt-2" />
     </div>
 
