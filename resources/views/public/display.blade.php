@@ -51,13 +51,21 @@
         class="relative w-screen h-screen bg-background"
     >
         <!-- Jam & tanggal -->
-        <div class="absolute top-4 right-6 z-30 text-right bg-surface/90 border border-border rounded-lg shadow-card px-4 py-2">
-            <div class="text-3xl font-semibold tabular-nums text-ink" x-text="clockTime"></div>
-            <div class="text-sm text-muted" x-text="clockDate"></div>
+        <div class="absolute top-4 right-6 z-30 bg-surface/95 border border-border rounded-xl shadow-card px-5 py-3 text-right">
+            <div class="flex items-baseline justify-end gap-1">
+                <span class="text-5xl font-bold tabular-nums tracking-tight text-ink" x-text="clockMain"></span>
+                <span class="text-xl font-semibold tabular-nums text-primary" x-text="clockSeconds"></span>
+            </div>
+            <div class="flex items-center justify-end gap-1.5 mt-1">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3.5 h-3.5 text-muted shrink-0">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
+                </svg>
+                <span class="text-sm font-medium text-muted" x-text="clockDate"></span>
+            </div>
         </div>
 
-        <div class="absolute top-4 left-6 z-30 flex items-center gap-2 bg-surface/90 border border-border rounded-lg shadow-card px-4 py-2">
-            <span class="w-2 h-2 rounded-full bg-success animate-pulse motion-reduce:animate-none"></span>
+        <div class="absolute top-4 left-6 z-30 flex items-center gap-2.5 bg-surface/95 border border-border rounded-xl shadow-card px-5 py-3">
+            <span class="w-2 h-2 rounded-full bg-success animate-pulse motion-reduce:animate-none shrink-0"></span>
             <div>
                 <div class="text-lg font-semibold text-ink leading-tight">{{ $display->name }}</div>
                 @if ($display->location)
@@ -184,7 +192,8 @@
                 currentIndex: 0,
                 fading: false,
                 loading: true,
-                clockTime: '',
+                clockMain: '',
+                clockSeconds: '',
                 clockDate: '',
                 slideTimer: null,
                 fadeTimer: null,
@@ -213,7 +222,10 @@
 
                 updateClock() {
                     const now = new Date();
-                    this.clockTime = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                    const time = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                    const segments = time.split(/[.:]/);
+                    this.clockMain = segments.slice(0, 2).join('.');
+                    this.clockSeconds = segments[2] ?? '00';
                     this.clockDate = now.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
                 },
 
