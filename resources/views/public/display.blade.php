@@ -22,6 +22,20 @@
             mask-image: linear-gradient(to right, transparent, black 4rem, black calc(100% - 4rem), transparent);
             -webkit-mask-image: linear-gradient(to right, transparent, black 4rem, black calc(100% - 4rem), transparent);
         }
+        @keyframes kenburns {
+            from { transform: scale(1); }
+            to { transform: scale(1.08); }
+        }
+        .kenburns-active {
+            animation: kenburns var(--dur, 8s) ease-out forwards;
+        }
+        @keyframes slideprogress {
+            from { width: 0%; }
+            to { width: 100%; }
+        }
+        .slideprogress-bar {
+            animation: slideprogress var(--dur, 8s) linear forwards;
+        }
         @media (prefers-reduced-motion: reduce) {
             .ticker-track { animation: none; }
         }
@@ -81,8 +95,14 @@
             <div class="w-full h-full transition-opacity duration-slow ease"
                 :class="[currentItem.is_priority ? 'ring-8 ring-danger ring-inset' : '', fading ? 'opacity-0' : 'opacity-100']"
             >
-                <template x-if="currentItem.type === 'image'">
-                    <img :src="currentItem.file_url" :alt="currentItem.title" class="w-full h-full object-contain bg-background">
+                <template x-for="n in (currentItem.type === 'image' ? [currentIndex] : [])" :key="'image-' + currentIndex">
+                    <div class="relative w-full h-full overflow-hidden bg-background">
+                        <div class="absolute inset-0 bg-cover bg-center blur-2xl scale-110 opacity-50"
+                            :style="'background-image: url(\'' + currentItem.file_url + '\')'"></div>
+                        <img :src="currentItem.file_url" :alt="currentItem.title"
+                            class="kenburns-active relative w-full h-full object-contain"
+                            :style="'--dur: ' + Math.max(parseInt(currentItem.duration, 10) || 10, 1) + 's'">
+                    </div>
                 </template>
 
                 <template x-if="currentItem.type === 'video'">
@@ -108,9 +128,21 @@
                 </template>
 
                 <template x-if="currentItem.is_priority">
-                    <div class="absolute top-0 left-0 right-0 bg-danger text-on-primary text-center py-2 text-lg font-bold tracking-wide z-20">
-                        &#9888; PENGUMUMAN PRIORITAS
+                    <div class="absolute top-1 left-0 right-0 bg-danger text-on-primary text-center py-2 text-lg font-bold tracking-wide z-20">
+                        <span class="inline-block animate-pulse motion-reduce:animate-none">&#9888;</span> PENGUMUMAN PRIORITAS
                     </div>
+                </template>
+            </div>
+        </template>
+
+        <!-- Progress bar durasi slide -->
+        <template x-if="currentItem && currentItem.type !== 'video'">
+            <div class="absolute top-0 left-0 right-0 h-1 z-40 bg-ink/10">
+                <template x-for="n in [currentIndex]" :key="'progress-' + currentIndex">
+                    <div class="h-full slideprogress-bar"
+                        :class="currentItem.is_priority ? 'bg-danger' : 'bg-primary'"
+                        :style="'--dur: ' + Math.max(parseInt(currentItem.duration, 10) || 10, 1) + 's'"
+                    ></div>
                 </template>
             </div>
         </template>
