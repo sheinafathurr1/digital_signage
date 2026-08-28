@@ -6,9 +6,7 @@
     <div class="py-12">
         <div class="max-w-5xl mx-auto sm:px-6 lg:px-8 space-y-6">
             @if (session('status'))
-                <div class="bg-success/10 border border-success/20 text-success text-sm rounded-md p-4">
-                    {{ session('status') }}
-                </div>
+                <x-alert type="success">{{ session('status') }}</x-alert>
             @endif
 
             <div class="bg-surface overflow-hidden shadow-card border border-border rounded-lg p-6">

@@ -18,6 +18,10 @@
             100% { transform: translateX(-100%); }
         }
         .ticker-track { display: inline-block; white-space: nowrap; animation: marquee 25s linear infinite; }
+        .ticker-fade {
+            mask-image: linear-gradient(to right, transparent, black 4rem, black calc(100% - 4rem), transparent);
+            -webkit-mask-image: linear-gradient(to right, transparent, black 4rem, black calc(100% - 4rem), transparent);
+        }
         @media (prefers-reduced-motion: reduce) {
             .ticker-track { animation: none; }
         }
@@ -38,11 +42,14 @@
             <div class="text-sm text-muted" x-text="clockDate"></div>
         </div>
 
-        <div class="absolute top-4 left-6 z-30 bg-surface/90 border border-border rounded-lg shadow-card px-4 py-2">
-            <div class="text-lg font-semibold text-ink">{{ $display->name }}</div>
-            @if ($display->location)
-                <div class="text-xs text-muted">{{ $display->location }}</div>
-            @endif
+        <div class="absolute top-4 left-6 z-30 flex items-center gap-2 bg-surface/90 border border-border rounded-lg shadow-card px-4 py-2">
+            <span class="w-2 h-2 rounded-full bg-success animate-pulse motion-reduce:animate-none"></span>
+            <div>
+                <div class="text-lg font-semibold text-ink leading-tight">{{ $display->name }}</div>
+                @if ($display->location)
+                    <div class="text-xs text-muted">{{ $display->location }}</div>
+                @endif
+            </div>
         </div>
 
         <!-- Status kosong / loading -->
@@ -56,7 +63,14 @@
                         </div>
                     </template>
                     <template x-if="!loading">
-                        <p class="text-heading font-semibold text-ink">Belum ada konten untuk ditampilkan.</p>
+                        <div class="flex flex-col items-center gap-4">
+                            <span class="w-16 h-16 rounded-full bg-primary/10 text-primary flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909M3 3h18v18H3V3Zm10.5 6a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z" />
+                                </svg>
+                            </span>
+                            <p class="text-heading font-semibold text-ink">Belum ada konten untuk ditampilkan.</p>
+                        </div>
                     </template>
                 </div>
             </div>
@@ -64,7 +78,9 @@
 
         <!-- Slide aktif -->
         <template x-if="currentItem">
-            <div class="w-full h-full" :class="currentItem.is_priority ? 'ring-8 ring-danger ring-inset' : ''">
+            <div class="w-full h-full transition-opacity duration-slow ease"
+                :class="[currentItem.is_priority ? 'ring-8 ring-danger ring-inset' : '', fading ? 'opacity-0' : 'opacity-100']"
+            >
                 <template x-if="currentItem.type === 'image'">
                     <img :src="currentItem.file_url" :alt="currentItem.title" class="w-full h-full object-contain bg-background">
                 </template>
@@ -99,9 +115,29 @@
             </div>
         </template>
 
+        <!-- Indikator slide -->
+        <template x-if="queue.length > 1">
+            <div class="absolute bottom-14 left-0 right-0 z-30 flex items-center justify-center">
+                <div class="flex items-center gap-1.5 bg-surface/90 border border-border rounded-full shadow-card px-3 py-2">
+                    <template x-for="(item, index) in queue" :key="index">
+                        <span class="h-1.5 rounded-full transition-all duration-base"
+                            :class="[
+                                index === currentIndex ? 'w-6' : 'w-1.5',
+                                item.is_priority
+                                    ? (index === currentIndex ? 'bg-danger' : 'bg-danger/30')
+                                    : (index === currentIndex ? 'bg-primary' : 'bg-border'),
+                            ]"
+                        ></span>
+                    </template>
+                </div>
+            </div>
+        </template>
+
         <!-- Ticker bawah -->
         <div class="absolute bottom-0 left-0 right-0 bg-surface/95 border-t border-border py-2 overflow-hidden z-30 shadow-[0_-2px_8px_rgba(44,36,32,0.08)]">
-            <span class="ticker-track text-sm text-muted" x-text="tickerText"></span>
+            <div class="ticker-fade overflow-hidden">
+                <span class="ticker-track text-sm text-muted" x-text="tickerText"></span>
+            </div>
         </div>
     </div>
 
@@ -114,10 +150,12 @@
                 priorityContents: [],
                 queue: [],
                 currentIndex: 0,
+                fading: false,
                 loading: true,
                 clockTime: '',
                 clockDate: '',
                 slideTimer: null,
+                fadeTimer: null,
                 pollTimerId: null,
                 lastSignature: '',
 
@@ -186,6 +224,7 @@
 
                     this.queue = newQueue;
                     this.currentIndex = 0;
+                    this.fading = false;
                     this.scheduleNext();
                 },
 
@@ -208,8 +247,14 @@
 
                 advance() {
                     if (this.queue.length === 0) return;
-                    this.currentIndex = (this.currentIndex + 1) % this.queue.length;
-                    this.scheduleNext();
+
+                    clearTimeout(this.fadeTimer);
+                    this.fading = true;
+                    this.fadeTimer = setTimeout(() => {
+                        this.currentIndex = (this.currentIndex + 1) % this.queue.length;
+                        this.fading = false;
+                        this.scheduleNext();
+                    }, 400);
                 },
             };
         }
