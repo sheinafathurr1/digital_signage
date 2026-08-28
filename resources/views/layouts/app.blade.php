@@ -33,6 +33,29 @@
             </main>
         </div>
 
+        @php
+            // These status codes are handled by their own pages (e.g. the
+            // profile/password forms) rather than being ready-to-display
+            // messages, so the generic toast below must skip them.
+            $rawStatusCodes = ['profile-updated', 'password-updated', 'verification-link-sent'];
+        @endphp
+        @if (session('status') && ! in_array(session('status'), $rawStatusCodes, true))
+            <script>
+                document.addEventListener('DOMContentLoaded', () => {
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'success',
+                        title: @js(session('status')),
+                        showConfirmButton: false,
+                        timer: 4000,
+                        timerProgressBar: true,
+                        iconColor: '#27AE60',
+                    });
+                });
+            </script>
+        @endif
+
         @stack('scripts')
     </body>
 </html>

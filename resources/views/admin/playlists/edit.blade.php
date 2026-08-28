@@ -5,10 +5,6 @@
 
     <div class="py-12">
         <div class="max-w-5xl mx-auto sm:px-6 lg:px-8 space-y-6">
-            @if (session('status'))
-                <x-alert type="success">{{ session('status') }}</x-alert>
-            @endif
-
             <div class="bg-surface overflow-hidden shadow-card border border-border rounded-lg p-6">
                 <h3 class="font-semibold text-ink mb-4">Nama Playlist</h3>
                 <form method="POST" action="{{ route('admin.playlists.update', $playlist) }}" class="flex items-end gap-3">

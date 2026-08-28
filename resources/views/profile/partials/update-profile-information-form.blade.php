@@ -49,21 +49,23 @@
 
         <div class="flex items-center gap-4">
             <x-primary-button>{{ __('Save') }}</x-primary-button>
-
-            @if (session('status') === 'profile-updated')
-                <p
-                    x-data="{ show: true }"
-                    x-show="show"
-                    x-transition
-                    x-init="setTimeout(() => show = false, 2000)"
-                    class="flex items-center gap-1 text-sm text-success"
-                >
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                    </svg>
-                    {{ __('Tersimpan.') }}
-                </p>
-            @endif
         </div>
     </form>
+
+    @if (session('status') === 'profile-updated')
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'success',
+                    title: 'Profil berhasil diperbarui.',
+                    showConfirmButton: false,
+                    timer: 4000,
+                    timerProgressBar: true,
+                    iconColor: '#27AE60',
+                });
+            });
+        </script>
+    @endif
 </section>

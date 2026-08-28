@@ -11,10 +11,6 @@
 
     <div class="py-12">
         <div class="max-w-5xl mx-auto sm:px-6 lg:px-8 space-y-4">
-            @if (session('status'))
-                <x-alert type="success">{{ session('status') }}</x-alert>
-            @endif
-
             <div class="bg-surface shadow-card border border-border rounded-lg overflow-hidden">
                 @if ($playlists->isEmpty())
                     <x-empty-state icon="playlist" title="Belum ada playlist"
@@ -39,7 +35,7 @@
                                     <td class="px-4 py-3 text-right space-x-2 whitespace-nowrap">
                                         <a href="{{ route('admin.playlists.edit', $playlist) }}" class="text-primary hover:underline">Kelola</a>
                                         <form method="POST" action="{{ route('admin.playlists.destroy', $playlist) }}" class="inline"
-                                            onsubmit="return confirm('Hapus playlist &quot;{{ $playlist->name }}&quot;?');">
+                                            data-confirm="Playlist &quot;{{ $playlist->name }}&quot; akan dihapus permanen dan tidak bisa dikembalikan.">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="text-danger hover:underline">Hapus</button>

@@ -7,10 +7,6 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
-            @if (session('status'))
-                <x-alert type="success">{{ session('status') }}</x-alert>
-            @endif
-
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <a href="{{ route('admin.contents.index') }}"
                     class="group bg-surface overflow-hidden shadow-card border border-border rounded-lg p-6 transition-all duration-base hover:shadow-elevated hover:scale-[1.02]">

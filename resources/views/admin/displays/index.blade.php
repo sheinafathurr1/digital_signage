@@ -11,10 +11,6 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-4">
-            @if (session('status'))
-                <x-alert type="success">{{ session('status') }}</x-alert>
-            @endif
-
             <div class="bg-surface shadow-card border border-border rounded-lg overflow-hidden">
                 @if ($displays->isEmpty())
                     <x-empty-state icon="tv" title="Belum ada layar terdaftar"
@@ -54,12 +50,15 @@
                                     <td class="px-4 py-3 text-right space-x-2 whitespace-nowrap">
                                         <a href="{{ route('admin.displays.edit', $display) }}" class="text-primary hover:underline">Edit</a>
                                         <form method="POST" action="{{ route('admin.displays.regenerate-code', $display) }}" class="inline"
-                                            onsubmit="return confirm('Buat ulang kode unik untuk layar ini? URL lama tidak akan berfungsi lagi.');">
+                                            data-confirm="URL lama /display/{{ $display->unique_code }} tidak akan berfungsi lagi setelah kode diganti."
+                                            data-confirm-title="Buat ulang kode unik?"
+                                            data-confirm-button="Ya, buat kode baru"
+                                            data-confirm-color="warning">
                                             @csrf
                                             <button type="submit" class="text-warning hover:underline">Kode Baru</button>
                                         </form>
                                         <form method="POST" action="{{ route('admin.displays.destroy', $display) }}" class="inline"
-                                            onsubmit="return confirm('Hapus layar &quot;{{ $display->name }}&quot;?');">
+                                            data-confirm="Layar &quot;{{ $display->name }}&quot; akan dihapus permanen dan tidak bisa dikembalikan.">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="text-danger hover:underline">Hapus</button>

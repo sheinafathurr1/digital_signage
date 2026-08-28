@@ -11,10 +11,6 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-4">
-            @if (session('status'))
-                <x-alert type="success">{{ session('status') }}</x-alert>
-            @endif
-
             <form method="GET" class="flex gap-2">
                 <x-text-input type="text" name="search" placeholder="Cari judul konten..." value="{{ $search }}" class="w-full sm:w-72" />
                 <x-secondary-button type="submit">Cari</x-secondary-button>
@@ -68,7 +64,7 @@
                                     <td class="px-4 py-3 text-right space-x-2 whitespace-nowrap">
                                         <a href="{{ route('admin.contents.edit', $content) }}" class="text-primary hover:underline">Edit</a>
                                         <form method="POST" action="{{ route('admin.contents.destroy', $content) }}" class="inline"
-                                            onsubmit="return confirm('Hapus konten &quot;{{ $content->title }}&quot;?');">
+                                            data-confirm="Konten &quot;{{ $content->title }}&quot; akan dihapus permanen dan tidak bisa dikembalikan.">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="text-danger hover:underline">Hapus</button>
