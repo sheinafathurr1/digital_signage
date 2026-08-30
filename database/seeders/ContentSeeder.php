@@ -56,30 +56,44 @@ class ContentSeeder extends Seeder
     {
         $width = 1920;
         $height = 1080;
-
-        $image = imagecreatetruecolor($width, $height);
-        $bgColor = imagecolorallocate($image, $bg[0], $bg[1], $bg[2]);
-        imagefill($image, 0, 0, $bgColor);
-
-        $white = imagecolorallocate($image, 255, 255, 255);
-        $fontPath = '/mnt/skills/examples/canvas-design/canvas-fonts/BricolageGrotesque-Bold.ttf';
         $lines = explode("\n", $text);
-        $fontSize = 90;
-        $lineHeight = 120;
-        $startY = ($height - (count($lines) * $lineHeight)) / 2 + $fontSize;
+        $fontPath = $this->findTrueTypeFont();
 
-        foreach ($lines as $i => $line) {
-            if (is_file($fontPath)) {
+        if ($fontPath !== null) {
+            $image = imagecreatetruecolor($width, $height);
+            imagefill($image, 0, 0, imagecolorallocate($image, $bg[0], $bg[1], $bg[2]));
+            $white = imagecolorallocate($image, 255, 255, 255);
+
+            $fontSize = 90;
+            $lineHeight = 120;
+            $startY = ($height - (count($lines) * $lineHeight)) / 2 + $fontSize;
+
+            foreach ($lines as $i => $line) {
                 $box = imagettfbbox($fontSize, 0, $fontPath, $line);
-                $textWidth = abs($box[4] - $box[0]);
-                $x = (int) (($width - $textWidth) / 2);
-                $y = (int) ($startY + $i * $lineHeight);
-                imagettftext($image, $fontSize, 0, $x, $y, $white, $fontPath, $line);
-            } else {
-                $x = (int) (($width - strlen($line) * imagefontwidth(5)) / 2);
-                $y = (int) ($height / 2) + $i * 20;
-                imagestring($image, 5, $x, $y, $line, $white);
+                $x = (int) (($width - abs($box[4] - $box[0])) / 2);
+                imagettftext($image, $fontSize, 0, $x, (int) ($startY + $i * $lineHeight), $white, $fontPath, $line);
             }
+        } else {
+            // No TrueType font on this machine — common on shared hosting. Draw
+            // with PHP's built-in bitmap font on a small canvas, then scale up so
+            // the placeholder is still readable instead of microscopic.
+            $scale = 4;
+            $small = imagecreatetruecolor((int) ($width / $scale), (int) ($height / $scale));
+            imagefill($small, 0, 0, imagecolorallocate($small, $bg[0], $bg[1], $bg[2]));
+            $white = imagecolorallocate($small, 255, 255, 255);
+
+            $lineHeight = 22;
+            $startY = (int) ((imagesy($small) - (count($lines) * $lineHeight)) / 2);
+
+            foreach ($lines as $i => $line) {
+                $x = (int) ((imagesx($small) - strlen($line) * imagefontwidth(5)) / 2);
+                imagestring($small, 5, $x, $startY + $i * $lineHeight, $line, $white);
+            }
+
+            $scaled = imagescale($small, $width, $height);
+            imagedestroy($small);
+
+            $image = $scaled !== false ? $scaled : $small;
         }
 
         $path = "contents/seed-placeholder-{$index}.png";
@@ -91,5 +105,29 @@ class ContentSeeder extends Seeder
         Storage::disk('public')->put($path, $contents);
 
         return $path;
+    }
+
+    /**
+     * Locate a bold TrueType font, checking the usual Linux locations before
+     * the one that only exists in the original development sandbox.
+     */
+    private function findTrueTypeFont(): ?string
+    {
+        $candidates = [
+            '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf',
+            '/usr/share/fonts/dejavu/DejaVuSans-Bold.ttf',
+            '/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf',
+            '/usr/share/fonts/liberation-sans/LiberationSans-Bold.ttf',
+            '/usr/share/fonts/truetype/freefont/FreeSansBold.ttf',
+            '/mnt/skills/examples/canvas-design/canvas-fonts/BricolageGrotesque-Bold.ttf',
+        ];
+
+        foreach ($candidates as $candidate) {
+            if (is_file($candidate)) {
+                return $candidate;
+            }
+        }
+
+        return null;
     }
 }

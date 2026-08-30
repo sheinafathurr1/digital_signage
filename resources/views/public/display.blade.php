@@ -146,7 +146,7 @@
 
                 <template x-if="currentItem.type === 'text'">
                     <div class="w-full h-full flex items-center justify-center {{ $isPortrait ? 'p-8' : 'p-16' }}"
-                        :class="currentItem.is_priority ? 'bg-danger' : 'bg-primary'">
+                        :style="'background-color: ' + currentItem.background_hex">
                         <p class="font-bold text-on-primary text-center whitespace-pre-line leading-tight"
                             :class="textSizeClass(currentItem)"
                             x-text="currentItem.text_body"></p>

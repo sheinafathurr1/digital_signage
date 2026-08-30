@@ -2,7 +2,10 @@
     $content = $content ?? null;
 @endphp
 
-<div x-data="{ type: '{{ old('type', $content->type ?? 'image') }}' }" class="space-y-6">
+<div x-data="{
+        type: '{{ old('type', $content->type ?? 'image') }}',
+        priority: {{ old('is_priority', $content->is_priority ?? false) ? 'true' : 'false' }},
+    }" class="space-y-6">
     <div>
         <x-input-label for="title" value="Judul" />
         <x-text-input id="title" name="title" type="text" class="mt-1 block w-full"
@@ -47,6 +50,36 @@
         <x-input-error :messages="$errors->get('text_body')" class="mt-2" />
     </div>
 
+    @php
+        $selectedColor = old('background_color', $content->background_color ?? \App\Models\Content::DEFAULT_BACKGROUND_COLOR);
+    @endphp
+    <div x-show="type === 'text'" x-cloak>
+        <x-input-label value="Warna Latar Slide" />
+        <p class="text-xs text-muted mt-1 mb-3">
+            Semua pilihan sudah diuji kontrasnya terhadap teks putih agar tetap terbaca dari jarak jauh.
+        </p>
+
+        <div class="flex flex-wrap gap-3">
+            @foreach (\App\Models\Content::BACKGROUND_COLORS as $key => $color)
+                <label class="cursor-pointer">
+                    <input type="radio" name="background_color" value="{{ $key }}" class="peer sr-only"
+                        {{ $selectedColor === $key ? 'checked' : '' }}>
+                    <span class="flex flex-col items-center gap-1.5 rounded-lg border-2 border-transparent p-1.5 transition-colors duration-fast peer-checked:border-primary peer-focus-visible:shadow-focus">
+                        <span class="w-14 h-10 rounded-md border border-border flex items-center justify-center text-xs font-bold text-white"
+                            style="background-color: {{ $color['hex'] }}">Aa</span>
+                        <span class="text-xs text-muted">{{ $color['label'] }}</span>
+                    </span>
+                </label>
+            @endforeach
+        </div>
+
+        <p class="text-xs text-warning mt-3" x-show="priority" x-cloak>
+            Konten prioritas selalu tampil dengan latar merah, apa pun warna yang dipilih di sini.
+        </p>
+
+        <x-input-error :messages="$errors->get('background_color')" class="mt-2" />
+    </div>
+
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
         <div>
             <x-input-label for="duration" value="Durasi Tampil (detik)" />
@@ -88,7 +121,7 @@
         </label>
 
         <label class="flex items-center gap-2">
-            <input type="checkbox" name="is_priority" value="1"
+            <input type="checkbox" name="is_priority" value="1" x-model="priority"
                 {{ old('is_priority', $content->is_priority ?? false) ? 'checked' : '' }}
                 class="rounded border-border text-danger shadow-none focus:ring-danger">
             <span class="text-sm text-ink">Prioritas / Darurat (menyela slideshow normal)</span>
