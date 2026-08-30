@@ -239,10 +239,10 @@
                 },
 
                 get tickerText() {
-                    const parts = this.priorityContents.length
-                        ? this.priorityContents.map(c => `PRIORITAS: ${c.title}`)
-                        : [];
-                    parts.push('{{ $display->name }}' + '{{ $display->location ? " - ".$display->location : "" }}');
+                    // Nama layar dan lokasi sudah tampil di badge kiri atas, jadi
+                    // ticker hanya membawa pengumuman prioritas lalu kredit institusi.
+                    const parts = this.priorityContents.map(c => `PRIORITAS: ${c.title}`);
+                    parts.push('Support by CAATIS Telkom University');
                     return parts.join('        •        ');
                 },
 
