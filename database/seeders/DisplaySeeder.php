@@ -18,5 +18,14 @@ class DisplaySeeder extends Seeder
             'orientation' => 'landscape',
             'playlist_id' => $playlist?->id,
         ]);
+
+        // A second screen in portrait so the portrait layout is reachable
+        // straight after seeding, not only once someone adds one by hand.
+        Display::create([
+            'name' => 'Layar Koridor',
+            'location' => 'Koridor Lantai 2',
+            'orientation' => 'portrait',
+            'playlist_id' => $playlist?->id,
+        ]);
     }
 }

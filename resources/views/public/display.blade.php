@@ -1,9 +1,12 @@
+@php
+    $isPortrait = $display->orientation === 'portrait';
+@endphp
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <title>{{ $display->name }} &mdash; Digital Signage</title>
+    <title>{{ $display->name }} &mdash; {{ config('app.name', 'Digital Signage') }}</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -46,31 +49,36 @@
         x-data="displaySlideshow({
             uniqueCode: @js($display->unique_code),
             pollUrl: @js(route('api.display.contents', $display->unique_code)),
+            isPortrait: @js($isPortrait),
         })"
         x-init="init()"
         class="relative w-screen h-screen bg-background"
     >
         <!-- Jam & tanggal -->
-        <div class="absolute top-4 right-6 z-30 bg-surface/95 border border-border rounded-xl shadow-card px-5 py-3 text-right">
+        <div class="absolute top-4 right-6 z-30 bg-surface/95 border border-border rounded-xl shadow-card text-right {{ $isPortrait ? 'px-3 py-2' : 'px-5 py-3' }}">
             <div class="flex items-baseline justify-end gap-1 font-mono">
-                <span class="text-5xl font-bold tabular-nums tracking-tight text-ink" x-text="clockMain"></span>
-                <span class="text-xl font-semibold tabular-nums text-primary" x-text="clockSeconds"></span>
+                <span class="{{ $isPortrait ? 'text-3xl' : 'text-5xl' }} font-bold tabular-nums tracking-tight text-ink" x-text="clockMain"></span>
+                <span class="{{ $isPortrait ? 'text-base' : 'text-xl' }} font-semibold tabular-nums text-primary" x-text="clockSeconds"></span>
             </div>
             <div class="flex items-center justify-end gap-1.5 mt-1">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3.5 h-3.5 text-muted shrink-0">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
                 </svg>
-                <span class="text-sm font-medium text-muted" x-text="clockDate"></span>
+                <span class="{{ $isPortrait ? 'text-xs' : 'text-sm' }} font-medium text-muted" x-text="clockDate"></span>
             </div>
         </div>
 
-        <div class="absolute top-4 left-6 z-30 flex items-center gap-2.5 bg-surface/95 border border-border rounded-xl shadow-card px-5 py-3">
-            <span class="w-2 h-2 rounded-full bg-success animate-pulse motion-reduce:animate-none shrink-0"></span>
+        <div class="absolute top-4 left-6 z-30 flex items-center gap-2.5 bg-surface/95 border border-border rounded-xl shadow-card {{ $isPortrait ? 'px-3 py-2' : 'px-5 py-3' }}">
+            <span class="w-2 h-2 rounded-full shrink-0"
+                :class="connectionLost ? 'bg-danger' : 'bg-success animate-pulse motion-reduce:animate-none'"></span>
             <div>
-                <div class="text-lg font-semibold text-ink leading-tight">{{ $display->name }}</div>
+                <div class="{{ $isPortrait ? 'text-base' : 'text-lg' }} font-semibold text-ink leading-tight">{{ $display->name }}</div>
                 @if ($display->location)
                     <div class="text-xs text-muted">{{ $display->location }}</div>
                 @endif
+                <template x-if="connectionLost">
+                    <div class="text-xs font-medium text-danger">Koneksi terputus &middot; menampilkan konten terakhir</div>
+                </template>
             </div>
         </div>
 
@@ -84,7 +92,18 @@
                             <p class="text-body">Memuat konten&hellip;</p>
                         </div>
                     </template>
-                    <template x-if="!loading">
+                    <template x-if="!loading && connectionLost">
+                        <div class="flex flex-col items-center gap-4">
+                            <span class="w-16 h-16 rounded-full bg-danger/10 text-danger flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 18.75h.008v.008H12v-.008ZM3 8.688a15 15 0 0 1 18 0M6.166 12.15a10.5 10.5 0 0 1 11.668 0M9.31 15.573a6 6 0 0 1 5.38 0M2 2l20 20" />
+                                </svg>
+                            </span>
+                            <p class="text-heading font-semibold text-ink">Tidak dapat terhubung ke server.</p>
+                            <p class="text-body">Layar akan mencoba menyambung kembali secara otomatis.</p>
+                        </div>
+                    </template>
+                    <template x-if="!loading && !connectionLost">
                         <div class="flex flex-col items-center gap-4">
                             <span class="w-16 h-16 rounded-full bg-primary/10 text-primary flex items-center justify-center">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
@@ -113,21 +132,24 @@
                     </div>
                 </template>
 
-                <template x-if="currentItem.type === 'video'">
+                <template x-for="n in (currentItem.type === 'video' ? [currentIndex] : [])" :key="'video-' + currentIndex">
                     <video
                         :src="currentItem.file_url"
                         class="w-full h-full object-contain bg-background"
                         autoplay
                         muted
                         playsinline
-                        @ended="advance()"
+                        x-on:timeupdate="onVideoProgress($event)"
+                        x-on:ended="advance()"
                     ></video>
                 </template>
 
                 <template x-if="currentItem.type === 'text'">
-                    <div class="w-full h-full flex items-center justify-center p-16"
+                    <div class="w-full h-full flex items-center justify-center {{ $isPortrait ? 'p-8' : 'p-16' }}"
                         :class="currentItem.is_priority ? 'bg-danger' : 'bg-primary'">
-                        <p class="text-display font-bold text-on-primary text-center whitespace-pre-line" x-text="currentItem.text_body"></p>
+                        <p class="font-bold text-on-primary text-center whitespace-pre-line leading-tight"
+                            :class="textSizeClass(currentItem)"
+                            x-text="currentItem.text_body"></p>
                     </div>
                 </template>
 
@@ -144,9 +166,17 @@
         </template>
 
         <!-- Progress bar durasi slide -->
-        <template x-if="currentItem && currentItem.type !== 'video'">
+        <template x-if="currentItem">
             <div class="absolute top-0 left-0 right-0 h-1 z-40 bg-ink/10">
-                <template x-for="n in [currentIndex]" :key="'progress-' + currentIndex">
+                <!-- Video reports its own real progress; everything else runs on a
+                     CSS animation keyed to the slide's configured duration. -->
+                <template x-if="currentItem.type === 'video'">
+                    <div class="h-full transition-all duration-fast"
+                        :class="currentItem.is_priority ? 'bg-danger' : 'bg-primary'"
+                        :style="'width: ' + videoProgress + '%'"></div>
+                </template>
+
+                <template x-for="n in (currentItem.type !== 'video' ? [currentIndex] : [])" :key="'progress-' + currentIndex">
                     <div class="h-full slideprogress-bar"
                         :class="currentItem.is_priority ? 'bg-danger' : 'bg-primary'"
                         :style="'--dur: ' + Math.max(parseInt(currentItem.duration, 10) || 10, 1) + 's'"
@@ -182,16 +212,20 @@
     </div>
 
     <script>
-        function displaySlideshow({ uniqueCode, pollUrl }) {
+        function displaySlideshow({ uniqueCode, pollUrl, isPortrait }) {
             return {
                 uniqueCode,
                 pollUrl,
+                isPortrait,
                 contents: [],
                 priorityContents: [],
                 queue: [],
                 currentIndex: 0,
                 fading: false,
                 loading: true,
+                videoProgress: 0,
+                failedPolls: 0,
+                connectionLost: false,
                 clockMain: '',
                 clockSeconds: '',
                 clockDate: '',
@@ -210,6 +244,23 @@
                         : [];
                     parts.push('{{ $display->name }}' + '{{ $display->location ? " - ".$display->location : "" }}');
                     return parts.join('        •        ');
+                },
+
+                // Longer announcements step down to a smaller size so they stay on
+                // screen; portrait screens step down once more for the narrower width.
+                textSizeClass(item) {
+                    const length = (item.text_body || '').trim().length;
+                    const steps = ['text-7xl', 'text-6xl', 'text-5xl', 'text-4xl', 'text-3xl', 'text-2xl'];
+
+                    let step = 0;
+                    if (length > 280) step = 4;
+                    else if (length > 160) step = 3;
+                    else if (length > 90) step = 2;
+                    else if (length > 40) step = 1;
+
+                    if (this.isPortrait) step += 1;
+
+                    return steps[Math.min(step, steps.length - 1)];
                 },
 
                 init() {
@@ -237,6 +288,9 @@
                         })
                         .then((data) => {
                             this.loading = false;
+                            this.failedPolls = 0;
+                            this.connectionLost = false;
+
                             const signature = JSON.stringify([data.contents, data.priority_contents]);
                             if (signature === this.lastSignature) return;
 
@@ -247,6 +301,15 @@
                         })
                         .catch(() => {
                             this.loading = false;
+                            this.failedPolls += 1;
+
+                            // One dropped poll is usually just a blip; flag the screen
+                            // as disconnected only once retries keep failing. Whatever
+                            // is already on screen keeps playing — a blank public
+                            // display would be worse than a slightly stale one.
+                            if (this.failedPolls >= 2) {
+                                this.connectionLost = true;
+                            }
                         });
                 },
 
@@ -269,7 +332,15 @@
                     this.queue = newQueue;
                     this.currentIndex = 0;
                     this.fading = false;
+                    this.videoProgress = 0;
                     this.scheduleNext();
+                },
+
+                onVideoProgress(event) {
+                    const video = event.target;
+                    this.videoProgress = video.duration
+                        ? Math.min((video.currentTime / video.duration) * 100, 100)
+                        : 0;
                 },
 
                 scheduleNext() {
@@ -297,6 +368,7 @@
                     this.fadeTimer = setTimeout(() => {
                         this.currentIndex = (this.currentIndex + 1) % this.queue.length;
                         this.fading = false;
+                        this.videoProgress = 0;
                         this.scheduleNext();
                     }, 400);
                 },
