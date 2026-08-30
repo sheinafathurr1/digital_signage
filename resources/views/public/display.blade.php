@@ -206,7 +206,7 @@
         <!-- Ticker bawah -->
         <div class="absolute bottom-0 left-0 right-0 bg-surface/95 border-t border-border py-2 overflow-hidden z-30 shadow-[0_-2px_8px_rgba(44,36,32,0.08)]">
             <div class="ticker-fade overflow-hidden">
-                <span class="ticker-track text-sm text-muted" x-text="tickerText"></span>
+                <span class="ticker-track text-sm text-muted">Support by CAATIS Telkom University</span>
             </div>
         </div>
     </div>
@@ -236,14 +236,6 @@
 
                 get currentItem() {
                     return this.queue.length ? this.queue[this.currentIndex] : null;
-                },
-
-                get tickerText() {
-                    // Nama layar dan lokasi sudah tampil di badge kiri atas, jadi
-                    // ticker hanya membawa pengumuman prioritas lalu kredit institusi.
-                    const parts = this.priorityContents.map(c => `PRIORITAS: ${c.title}`);
-                    parts.push('Support by CAATIS Telkom University');
-                    return parts.join('        •        ');
                 },
 
                 // Longer announcements step down to a smaller size so they stay on
