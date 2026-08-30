@@ -19,14 +19,14 @@ Route::get('/display/{unique_code}', [PublicDisplayController::class, 'show'])
 
 Route::middleware('auth')->prefix('admin')->group(function () {
     Route::get('/dashboard', function () {
+        $displays = Display::with('playlist')->orderBy('name')->get();
+
         return view('admin.dashboard', [
             'contentCount' => Content::count(),
             'playlistCount' => Playlist::count(),
-            'displayCount' => Display::count(),
-            'onlineDisplayCount' => Display::query()
-                ->whereNotNull('last_seen_at')
-                ->where('last_seen_at', '>=', now()->subMinutes(2))
-                ->count(),
+            'displayCount' => $displays->count(),
+            'onlineDisplayCount' => $displays->filter(fn (Display $display) => $display->is_online)->count(),
+            'displays' => $displays,
         ]);
     })->name('dashboard');
 

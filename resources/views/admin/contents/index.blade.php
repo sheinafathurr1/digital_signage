@@ -37,15 +37,36 @@
                             @foreach ($contents as $content)
                                 <tr class="even:bg-background hover:bg-border/40 transition-colors duration-fast">
                                     <td class="px-4 py-3 text-ink">
-                                        {{ $content->title }}
-                                        @if ($content->is_priority)
-                                            <span class="ml-1 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-danger/10 text-danger">
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3 h-3">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
-                                            </svg>
-                                            Prioritas
-                                        </span>
-                                        @endif
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-14 h-10 shrink-0 rounded-md border border-border overflow-hidden bg-background flex items-center justify-center text-muted">
+                                                @if ($content->type === 'image' && $content->file_path)
+                                                    <img src="{{ $content->file_url }}" alt="" class="w-full h-full object-cover">
+                                                @elseif ($content->type === 'video')
+                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
+                                                        <path d="M4.5 5.653c0-1.427 1.529-2.33 2.779-1.643l11.54 6.347c1.295.712 1.295 2.573 0 3.286L7.28 19.99c-1.25.687-2.779-.217-2.779-1.643V5.653Z" />
+                                                    </svg>
+                                                @elseif ($content->type === 'html-embed')
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75 22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3-4.5 16.5" />
+                                                    </svg>
+                                                @else
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25H12" />
+                                                    </svg>
+                                                @endif
+                                            </div>
+                                            <div class="min-w-0">
+                                                <div class="font-medium">{{ $content->title }}</div>
+                                                @if ($content->is_priority)
+                                                    <span class="mt-0.5 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-danger/10 text-danger">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3 h-3">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+                                                        </svg>
+                                                        Prioritas
+                                                    </span>
+                                                @endif
+                                            </div>
+                                        </div>
                                     </td>
                                     <td class="px-4 py-3 text-muted">{{ $content->type_label }}</td>
                                     <td class="px-4 py-3 text-muted">{{ $content->duration }}s</td>

@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-ink leading-tight">
-            {{ __('Dashboard') }}
+            Dashboard
         </h2>
     </x-slot>
 
@@ -59,6 +59,54 @@
                     <div class="text-3xl font-bold text-success mt-3">{{ $onlineDisplayCount }} / {{ $displayCount }}</div>
                     <span class="text-sm text-muted mt-2 inline-block">Aktif dalam 2 menit terakhir</span>
                 </div>
+            </div>
+
+            <div class="bg-surface overflow-hidden shadow-card border border-border rounded-lg">
+                <div class="flex items-center justify-between px-6 py-4 border-b border-border">
+                    <h3 class="font-semibold text-ink">Status Layar</h3>
+                    <a href="{{ route('admin.displays.index') }}" class="text-sm text-primary hover:underline">Kelola layar &rarr;</a>
+                </div>
+
+                @if ($displays->isEmpty())
+                    <p class="px-6 py-8 text-center text-sm text-muted">
+                        Belum ada layar terdaftar.
+                        <a href="{{ route('admin.displays.create') }}" class="text-primary hover:underline">Tambah layar pertama</a>.
+                    </p>
+                @else
+                    <ul class="divide-y divide-border">
+                        @foreach ($displays as $display)
+                            <li class="flex items-center gap-4 px-6 py-4">
+                                <span class="w-2.5 h-2.5 shrink-0 rounded-full {{ $display->is_online ? 'bg-success animate-pulse motion-reduce:animate-none' : 'bg-border' }}"></span>
+
+                                <div class="min-w-0 flex-1">
+                                    <div class="font-medium text-ink truncate">{{ $display->name }}</div>
+                                    <div class="text-xs text-muted truncate">
+                                        {{ $display->location ?: 'Tanpa lokasi' }}
+                                        &middot;
+                                        {{ $display->playlist?->name ?? 'Belum ada playlist' }}
+                                    </div>
+                                </div>
+
+                                <div class="hidden sm:block text-xs text-muted whitespace-nowrap">
+                                    @if ($display->last_seen_at)
+                                        Terakhir aktif {{ $display->last_seen_at->diffForHumans() }}
+                                    @else
+                                        Belum pernah aktif
+                                    @endif
+                                </div>
+
+                                @if ($display->is_online)
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-success/10 text-success shrink-0">Online</span>
+                                @else
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-border/50 text-muted shrink-0">Offline</span>
+                                @endif
+
+                                <a href="{{ route('display.show', $display->unique_code) }}" target="_blank"
+                                    class="text-sm text-primary hover:underline shrink-0">Buka</a>
+                            </li>
+                        @endforeach
+                    </ul>
+                @endif
             </div>
 
             <div class="bg-surface overflow-hidden shadow-card border border-border rounded-lg p-6">
