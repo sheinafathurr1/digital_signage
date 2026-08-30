@@ -40,6 +40,7 @@ class DisplayContentsController extends Controller
             'type' => $content->type,
             'file_url' => $content->file_url,
             'text_body' => $content->text_body,
+            'background_hex' => $content->background_hex,
             'duration' => $content->duration,
             'is_priority' => $content->is_priority,
         ];

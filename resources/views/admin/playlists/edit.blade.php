@@ -7,6 +7,7 @@
         'duration' => $c->duration,
         'file_url' => $c->file_url,
         'text_body' => $c->text_body,
+        'background_hex' => $c->background_hex,
         'is_priority' => $c->is_priority,
     ];
 @endphp
@@ -193,7 +194,7 @@
 
                                     <template x-if="previewItem && previewItem.type === 'text'">
                                         <div class="w-full h-full flex items-center justify-center p-8"
-                                            :class="previewItem.is_priority ? 'bg-danger' : 'bg-primary'">
+                                            :style="'background-color: ' + previewItem.background_hex">
                                             <p class="text-2xl sm:text-3xl font-bold text-on-primary text-center whitespace-pre-line"
                                                 x-text="previewItem.text_body"></p>
                                         </div>

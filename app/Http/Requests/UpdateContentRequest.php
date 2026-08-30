@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Content;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -27,6 +28,7 @@ class UpdateContentRequest extends FormRequest
                 $type === 'video' ? 'max:51200' : 'max:5120',
             ],
             'text_body' => [Rule::requiredIf($type === 'text' || $type === 'html-embed'), 'nullable', 'string'],
+            'background_color' => ['nullable', Rule::in(array_keys(Content::BACKGROUND_COLORS))],
             'duration' => ['required', 'integer', 'min:1', 'max:3600'],
             'start_date' => ['nullable', 'date'],
             'end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
@@ -43,6 +45,7 @@ class UpdateContentRequest extends FormRequest
             'type' => 'tipe',
             'file' => 'berkas',
             'text_body' => 'isi teks',
+            'background_color' => 'warna latar',
             'duration' => 'durasi',
             'start_date' => 'tanggal mulai',
             'end_date' => 'tanggal selesai',
