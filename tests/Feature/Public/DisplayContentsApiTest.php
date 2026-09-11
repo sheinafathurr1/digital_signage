@@ -69,6 +69,21 @@ class DisplayContentsApiTest extends TestCase
         $this->assertTrue($priorityTitles->contains('Darurat'));
     }
 
+    public function test_payload_carries_the_display_metadata_the_screen_renders_live(): void
+    {
+        $display = Display::factory()->create([
+            'name' => 'Layar Lobi Utama',
+            'location' => 'Lobi Lantai 1',
+            'orientation' => 'portrait',
+        ]);
+
+        $this->getJson(route('api.display.contents', $display->unique_code))
+            ->assertOk()
+            ->assertJsonPath('display.name', 'Layar Lobi Utama')
+            ->assertJsonPath('display.location', 'Lobi Lantai 1')
+            ->assertJsonPath('display.orientation', 'portrait');
+    }
+
     public function test_polling_updates_heartbeat_last_seen_at(): void
     {
         $display = Display::factory()->create(['last_seen_at' => null]);

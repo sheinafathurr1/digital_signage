@@ -48,6 +48,7 @@ class DisplayContentsController extends Controller
         return response()->json([
             'display' => [
                 'name' => $display->name,
+                'location' => $display->location,
                 'orientation' => $display->orientation,
             ],
             'contents' => $regularContents->values()->map($mapContent),
