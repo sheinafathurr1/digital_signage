@@ -49,33 +49,42 @@
         x-data="displaySlideshow({
             uniqueCode: @js($display->unique_code),
             pollUrl: @js(route('api.display.contents', $display->unique_code)),
+            displayName: @js($display->name),
+            displayLocation: @js($display->location),
             isPortrait: @js($isPortrait),
+            appName: @js(config('app.name', 'Digital Signage')),
         })"
         x-init="init()"
         class="relative w-screen h-screen bg-background"
     >
         <!-- Jam & tanggal -->
-        <div class="absolute top-4 right-6 z-30 bg-surface/95 border border-border rounded-xl shadow-card text-right {{ $isPortrait ? 'px-3 py-2' : 'px-5 py-3' }}">
+        <div class="absolute top-4 right-6 z-30 bg-surface/95 border border-border rounded-xl shadow-card text-right"
+            :class="isPortrait ? 'px-3 py-2' : 'px-5 py-3'">
             <div class="flex items-baseline justify-end gap-1 font-mono">
-                <span class="{{ $isPortrait ? 'text-3xl' : 'text-5xl' }} font-bold tabular-nums tracking-tight text-ink" x-text="clockMain"></span>
-                <span class="{{ $isPortrait ? 'text-base' : 'text-xl' }} font-semibold tabular-nums text-primary" x-text="clockSeconds"></span>
+                <span class="font-bold tabular-nums tracking-tight text-ink"
+                    :class="isPortrait ? 'text-3xl' : 'text-5xl'" x-text="clockMain"></span>
+                <span class="font-semibold tabular-nums text-primary"
+                    :class="isPortrait ? 'text-base' : 'text-xl'" x-text="clockSeconds"></span>
             </div>
             <div class="flex items-center justify-end gap-1.5 mt-1">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3.5 h-3.5 text-muted shrink-0">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
                 </svg>
-                <span class="{{ $isPortrait ? 'text-xs' : 'text-sm' }} font-medium text-muted" x-text="clockDate"></span>
+                <span class="font-medium text-muted"
+                    :class="isPortrait ? 'text-xs' : 'text-sm'" x-text="clockDate"></span>
             </div>
         </div>
 
-        <div class="absolute top-4 left-6 z-30 flex items-center gap-2.5 bg-surface/95 border border-border rounded-xl shadow-card {{ $isPortrait ? 'px-3 py-2' : 'px-5 py-3' }}">
+        <div class="absolute top-4 left-6 z-30 flex items-center gap-2.5 bg-surface/95 border border-border rounded-xl shadow-card"
+            :class="isPortrait ? 'px-3 py-2' : 'px-5 py-3'">
             <span class="w-2 h-2 rounded-full shrink-0"
                 :class="connectionLost ? 'bg-danger' : 'bg-success animate-pulse motion-reduce:animate-none'"></span>
             <div>
-                <div class="{{ $isPortrait ? 'text-base' : 'text-lg' }} font-semibold text-ink leading-tight">{{ $display->name }}</div>
-                @if ($display->location)
-                    <div class="text-xs text-muted">{{ $display->location }}</div>
-                @endif
+                <div class="font-semibold text-ink leading-tight"
+                    :class="isPortrait ? 'text-base' : 'text-lg'" x-text="displayName"></div>
+                <template x-if="displayLocation">
+                    <div class="text-xs text-muted" x-text="displayLocation"></div>
+                </template>
                 <template x-if="connectionLost">
                     <div class="text-xs font-medium text-danger">Koneksi terputus &middot; menampilkan konten terakhir</div>
                 </template>
@@ -145,7 +154,8 @@
                 </template>
 
                 <template x-if="currentItem.type === 'text'">
-                    <div class="w-full h-full flex items-center justify-center {{ $isPortrait ? 'p-8' : 'p-16' }}"
+                    <div class="w-full h-full flex items-center justify-center"
+                        :class="isPortrait ? 'p-8' : 'p-16'"
                         :style="'background-color: ' + currentItem.background_hex">
                         <p class="font-bold text-on-primary text-center whitespace-pre-line leading-tight"
                             :class="textSizeClass(currentItem)"
@@ -212,10 +222,15 @@
     </div>
 
     <script>
-        function displaySlideshow({ uniqueCode, pollUrl, isPortrait }) {
+        function displaySlideshow({ uniqueCode, pollUrl, displayName, displayLocation, isPortrait, appName }) {
             return {
                 uniqueCode,
                 pollUrl,
+                appName,
+                // Seeded from the server render so the screen is correct before the
+                // first poll lands, then kept live by applyDisplayMeta().
+                displayName,
+                displayLocation: displayLocation ?? '',
                 isPortrait,
                 contents: [],
                 priorityContents: [],
@@ -260,7 +275,7 @@
                     setInterval(() => this.updateClock(), 1000);
 
                     this.fetchContents();
-                    this.pollTimerId = setInterval(() => this.fetchContents(), 30000);
+                    this.pollTimerId = setInterval(() => this.fetchContents(), 10000);
                 },
 
                 updateClock() {
@@ -283,6 +298,11 @@
                             this.failedPolls = 0;
                             this.connectionLost = false;
 
+                            // Applied before the signature check below, which only
+                            // covers the content arrays — a renamed or re-oriented
+                            // screen would otherwise never pick the change up.
+                            this.applyDisplayMeta(data.display);
+
                             const signature = JSON.stringify([data.contents, data.priority_contents]);
                             if (signature === this.lastSignature) return;
 
@@ -303,6 +323,17 @@
                                 this.connectionLost = true;
                             }
                         });
+                },
+
+                applyDisplayMeta(meta) {
+                    if (! meta) {
+                        return;
+                    }
+
+                    this.displayName = meta.name ?? this.displayName;
+                    this.displayLocation = meta.location ?? '';
+                    this.isPortrait = meta.orientation === 'portrait';
+                    document.title = `${this.displayName} \u2014 ${this.appName}`;
                 },
 
                 rebuildQueue() {
